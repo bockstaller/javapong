@@ -1,5 +1,8 @@
 package de.javavorlesung.pong;
 
+import com.sun.deploy.util.ArrayUtil;
+import javafx.scene.shape.Polyline;
+
 import java.math.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -16,27 +19,44 @@ public class Paddle extends GameObject {
     private double deltaX;
     private double deltaY;
 
-    private LinkedList<Integer> paddleElements = new LinkedList<Integer>();
-    private int paddleStart;
-    private int paddleExtend;
+    private int maxLength;
+    private int currentLength;
 
 
-    public Paddle (Coordinate position, int paddleLength) {
+    private LinkedList<Coordinate> paddleSegments = new LinkedList<Coordinate>();
+
+    private int[] xArray = new int[maxLength];
+    private int[] yArray = new int[maxLength];
+
+    public Paddle (Coordinate position, int maxPaddleLength) {
         super(position, 0, 0);
-        for (int i = 0; i<paddleLength; i++){
-            paddleElements.add(0);
+        maxLength=maxPaddleLength;
+        currentLength=maxPaddleLength;
+        for (int i = 0; i<maxLength; i++){
+            paddleSegments.addLast(position);
         }
+    }
+
+    public int getCurrentLength(){
+        return currentLength;
+    }
+
+    public LinkedList<Coordinate> getPaddle(){
+        return paddleSegments;
     }
 
     public void shortenPaddle(int delta){
         for (int i = 0; i<delta; i++){
-            paddleElements.removeLast();
+            paddleSegments.removeLast();
+            currentLength--;
+
         }
     }
 
     public void lengthenPaddle(int delta){
         for (int i = 0; i<delta; i++){
-            paddleElements.add(paddleElements.getLast());
+            paddleSegments.add(paddleSegments.getLast());
+            currentLength++;
         }
     }
 
@@ -46,36 +66,9 @@ public class Paddle extends GameObject {
     }
 
     public void move(){
+        paddleSegments.addLast(new Coordinate(getObjectPosition().getX(),getObjectPosition().getY()));
+        paddleSegments.removeFirst();
 
-        deltaX = getObjectPosition().getX()-(1280/2);
-        deltaY = (720/2)-getObjectPosition().getY();
-
-        if((deltaX >= 0)&&(deltaY >= 0)){
-            angle = Math.toDegrees(Math.atan(deltaY/deltaX));
-        }else if((deltaX >= 0)&&(deltaY < 0)){
-            angle = 360+Math.toDegrees(Math.atan(deltaY/deltaX));
-        }else if((deltaX < 0)&&(deltaY >= 0)) {
-            angle = (90+Math.toDegrees(Math.atan(deltaY/deltaX)))+90;
-        }else{
-            angle = Math.toDegrees(Math.atan(deltaY/deltaX))+180;
-        }
-
-
-        paddleStart=(int)angle;
-        for(int sumElement: paddleElements) {
-            paddleExtend += sumElement;
-        }
-
-        int paddleEndMinusOne= paddleStart+paddleExtend;
-        if((angle-paddleEndMinusOne)>340){
-            paddleElements.addLast((360-paddleEndMinusOne)+(int)angle);
-        }else{
-            paddleElements.addLast(paddleEndMinusOne-(int)angle);
-        }
-        paddleElements.removeFirst();
-
-
-        System.out.println(paddleElements.toString());
     }
 
 
@@ -85,20 +78,39 @@ public class Paddle extends GameObject {
         Graphics2D g2d = (Graphics2D) g;
 
 
+         /*
         g2d.setFont(new Font(Font.MONOSPACED, Font.BOLD, 12));
         g2d.setColor(Color.GRAY);
 
+
         String temp=String.valueOf(deltaX)+" "+String.valueOf(deltaY)+ " "+ angle;
         g2d.drawString(temp, (int)getObjectPosition().getX(), (int)getObjectPosition().getY());
+
 
         g2d.drawLine(1280/2, 720/2, (int)getObjectPosition().getX(), 720/2);
         g2d.drawLine(1280/2, (int)getObjectPosition().getY(), (int)getObjectPosition().getX(), (int)getObjectPosition().getY());
         g2d.drawLine(1280/2, 720/2, 1280/2, (int)getObjectPosition().getY());
         g2d.drawLine((int)getObjectPosition().getX(), 720/2, (int)getObjectPosition().getX(), (int)getObjectPosition().getY());
+         */
 
-        Arc2D arc = new Arc2D.Double(280, 30, 720, 720, paddleStart, paddleExtend, Arc2D.OPEN);
+        Coordinate temp=null;
+        for (Coordinate s: paddleSegments) {
+            if(temp == null){
+                temp = s;
+            }else{
+                g2d.drawLine(temp.getX(), temp.getY(), s.getX(), s.getY());
+                temp = s;
+            }
 
-        g2d.draw(arc);
+
+        }
+
+
+
+
+
+
+
     }
 
 }
