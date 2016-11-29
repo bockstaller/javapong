@@ -8,6 +8,9 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.geom.Arc2D;
 import java.awt.Graphics;
+import java.awt.image.*;
+import java.io.*;
+import javax.imageio.*;
 import java.util.LinkedList;
 
 public class Paddle extends GameObject {
@@ -16,37 +19,25 @@ public class Paddle extends GameObject {
     private double deltaX;
     private double deltaY;
 
-    private LinkedList<Integer> paddleElements = new LinkedList<Integer>();
-    private int paddleStart;
-    private int paddleExtend;
+    private BufferedImage paddle = null;
 
 
-    public Paddle (Coordinate position, int paddleLength) {
+
+    public Paddle (Coordinate position) {
         super(position, 0, 0);
-        for (int i = 0; i<paddleLength; i++){
-            paddleElements.add(0);
+
+        try {
+            paddle = ImageIO.read(new File("src/images/paddle.png"));
+        } catch (IOException e) {
         }
     }
 
-    public void shortenPaddle(int delta){
-        for (int i = 0; i<delta; i++){
-            paddleElements.removeLast();
-        }
-    }
-
-    public void lengthenPaddle(int delta){
-        for (int i = 0; i<delta; i++){
-            paddleElements.add(paddleElements.getLast());
-        }
-    }
 
     public void setPosition(MouseEvent e){
         super.setObjectPosition(new Coordinate(e.getX(), e.getY()));
-        //System.out.println(e.getX() + " " + e.getY());
     }
 
-    public void move(){
-
+    private void getAngle(){
         deltaX = getObjectPosition().getX()-(1280/2);
         deltaY = (720/2)-getObjectPosition().getY();
 
@@ -59,23 +50,13 @@ public class Paddle extends GameObject {
         }else{
             angle = Math.toDegrees(Math.atan(deltaY/deltaX))+180;
         }
+        angle = angle + 90;
+    }
+
+    public void move(){
+        getAngle();
 
 
-        paddleStart=(int)angle;
-        for(int sumElement: paddleElements) {
-            paddleExtend += sumElement;
-        }
-
-        int paddleEndMinusOne= paddleStart+paddleExtend;
-        if((angle-paddleEndMinusOne)>340){
-            paddleElements.addLast((360-paddleEndMinusOne)+(int)angle);
-        }else{
-            paddleElements.addLast(paddleEndMinusOne-(int)angle);
-        }
-        paddleElements.removeFirst();
-
-
-        System.out.println(paddleElements.toString());
     }
 
 
@@ -83,6 +64,12 @@ public class Paddle extends GameObject {
     public void paintMe(Graphics g) {
 
         Graphics2D g2d = (Graphics2D) g;
+
+        AffineTransform transformation = new AffineTransform();
+        transformation.translate(1280/2-75, 720+15);
+        transformation.rotate(Math.toRadians(-angle), 75, -720/2+15);
+
+        g2d.drawImage(paddle, transformation, null);
 
 
         g2d.setFont(new Font(Font.MONOSPACED, Font.BOLD, 12));
@@ -92,13 +79,14 @@ public class Paddle extends GameObject {
         g2d.drawString(temp, (int)getObjectPosition().getX(), (int)getObjectPosition().getY());
 
         g2d.drawLine(1280/2, 720/2, (int)getObjectPosition().getX(), 720/2);
-        g2d.drawLine(1280/2, (int)getObjectPosition().getY(), (int)getObjectPosition().getX(), (int)getObjectPosition().getY());
+        g2d.drawLine(120/2, (int)getObjectPosition().getY(), (int)getObjectPosition().getX(), (int)getObjectPosition().getY());
         g2d.drawLine(1280/2, 720/2, 1280/2, (int)getObjectPosition().getY());
         g2d.drawLine((int)getObjectPosition().getX(), 720/2, (int)getObjectPosition().getX(), (int)getObjectPosition().getY());
 
-        Arc2D arc = new Arc2D.Double(280, 30, 720, 720, paddleStart, paddleExtend, Arc2D.OPEN);
 
-        g2d.draw(arc);
+
+
+
     }
 
 }

@@ -23,7 +23,7 @@ public class GamePanel extends JPanel implements MouseMotionListener{
 
     public static final String IMAGE_DIR = "images/";
 
-    private final Dimension prefSize = new Dimension(1180, 780);
+    private final Dimension prefSize = new Dimension(1280, 780);
 
     private ImageIcon backgroundImage;
     //private final String[] backgroundImages= new String [] {"bg_mud.jpg",
@@ -68,7 +68,7 @@ public class GamePanel extends JPanel implements MouseMotionListener{
     }
 
     private void createGameObjects() {
-        testPaddle = new Paddle(new Coordinate(100,100), 20);
+        testPaddle = new Paddle(new Coordinate(100,100));
     }
 
     private void initPlayersTank() {
