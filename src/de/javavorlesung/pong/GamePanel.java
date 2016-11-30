@@ -9,21 +9,18 @@ import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import java.net.URL;
-import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseEvent;
 
-import de.javavorlesung.pong.Constants;
-
 public class GamePanel extends JPanel implements MouseMotionListener{
 
 
     private Paddle testPaddle;
-    private Area area;
+    private Ball testBall;
+    private Gamearea gamearea;
 
     private final Dimension prefSize = new Dimension(Constants.XRESOLUTION, Constants.YRESOLUTION+60);
 
@@ -67,7 +64,10 @@ public class GamePanel extends JPanel implements MouseMotionListener{
 
     private void createGameObjects() {
         testPaddle = new Paddle(new Coordinate(100,100));
-        area = new Area(new Coordinate(Constants.XRESOLUTION/2-720/2, Constants.YRESOLUTION/2-720/2+Constants.PADDLEHEIGHT));
+        gamearea = new Gamearea(new Coordinate(Constants.XRESOLUTION/2-720/2,
+                                Constants.YRESOLUTION/2-720/2+Constants.PADDLEHEIGHT));
+        testBall = new Ball();
+
     }
 
 
@@ -98,6 +98,7 @@ public class GamePanel extends JPanel implements MouseMotionListener{
 
     private void doOnTick(){
         testPaddle.move();
+        testBall.move();
         repaint();
     }
 
@@ -130,8 +131,9 @@ public class GamePanel extends JPanel implements MouseMotionListener{
             g.setColor(Color.RED);
             g.drawString("GAME OVER!", 12, 12);
         }
-        area.paintMe(g);
+        gamearea.paintMe(g);
         testPaddle.paintMe(g);
+        testBall.paintMe(g);
 
     }
 

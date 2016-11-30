@@ -76,16 +76,12 @@ public class Paddle extends GameObject {
 
         Graphics2D g2d = (Graphics2D) g;
 
-
-
-
         g2d.drawImage(paddle, transformation, null);
-
 
         g2d.setFont(new Font(Font.MONOSPACED, Font.BOLD, 12));
         g2d.setColor(Color.GRAY);
 
-        String temp=String.valueOf(deltaX)+" "+String.valueOf(deltaY)+ " "+ angle;
+        String temp=String.valueOf(getObjectPosition().getX())+" "+String.valueOf(getObjectPosition().getY())+ " "+ angle;
         g2d.drawString(temp, (int)getObjectPosition().getX(), (int)getObjectPosition().getY());
 
 
