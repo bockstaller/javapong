@@ -10,12 +10,12 @@ public abstract class GameObject {
     private double movingAngle;
     private double movingDistance;
 
-    public GameObject(Coordinate objectPosition, double width, double height) {
+    public GameObject(Coordinate objectPosition, double width, double height, double angle, double speed) {
         this.objectPosition = objectPosition;
         this.width = width;
         this.height = height;
-        movingAngle = 0;
-        movingDistance = 0;
+        this.movingAngle = angle;
+        this.movingDistance = speed;
     }
 
     public Coordinate getObjectPosition() {

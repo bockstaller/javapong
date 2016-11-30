@@ -17,18 +17,17 @@ import javax.swing.Timer;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseEvent;
 
+import de.javavorlesung.pong.Constants;
+
 public class GamePanel extends JPanel implements MouseMotionListener{
 
+
     private Paddle testPaddle;
+    private Area area;
 
-    public static final String IMAGE_DIR = "images/";
+    private final Dimension prefSize = new Dimension(Constants.XRESOLUTION, Constants.YRESOLUTION+60);
 
-    private final Dimension prefSize = new Dimension(1280, 780);
 
-    private ImageIcon backgroundImage;
-    //private final String[] backgroundImages= new String [] {"bg_mud.jpg",
-    //        "bg_snow.jpg",
-    //       "bg_sand.jpg"};
 
     private boolean gameOver = false;
 
@@ -56,7 +55,6 @@ public class GamePanel extends JPanel implements MouseMotionListener{
     }
 
     private void initGame () {
-        //setBackgroundImage(1);
         createGameObjects();
 
         t = new Timer(20, new ActionListener() {
@@ -69,17 +67,10 @@ public class GamePanel extends JPanel implements MouseMotionListener{
 
     private void createGameObjects() {
         testPaddle = new Paddle(new Coordinate(100,100));
+        area = new Area(new Coordinate(Constants.XRESOLUTION/2-720/2, Constants.YRESOLUTION/2-720/2+Constants.PADDLEHEIGHT));
     }
 
-    private void initPlayersTank() {
-        // hier werden wir den Panzer des Spielers initialisieren
-    }
 
-    /**public void setBackgroundImage(int imageNumber) {
-        String imagePath = IMAGE_DIR + backgroundImages[imageNumber];
-        URL imageURL = getClass().getResource(imagePath);
-        backgroundImage = new ImageIcon(imageURL);
-    }**/
 
     private void startGame() {
         t.start();
@@ -139,7 +130,9 @@ public class GamePanel extends JPanel implements MouseMotionListener{
             g.setColor(Color.RED);
             g.drawString("GAME OVER!", 12, 12);
         }
+        area.paintMe(g);
         testPaddle.paintMe(g);
+
     }
 
 }

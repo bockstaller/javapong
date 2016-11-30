@@ -20,11 +20,12 @@ public class Paddle extends GameObject {
     private double deltaY;
 
     private BufferedImage paddle = null;
+    private AffineTransform transformation = new AffineTransform();
 
 
 
     public Paddle (Coordinate position) {
-        super(position, 0, 0);
+        super(position, 0, 0, 0, 0);
 
         try {
             paddle = ImageIO.read(new File("src/images/paddle.png"));
@@ -38,8 +39,8 @@ public class Paddle extends GameObject {
     }
 
     private void getAngle(){
-        deltaX = getObjectPosition().getX()-(1280/2);
-        deltaY = (720/2)-getObjectPosition().getY();
+        deltaX = getObjectPosition().getX()-(Constants.XRESOLUTION/2);
+        deltaY = (Constants.YRESOLUTION/2)-getObjectPosition().getY();
 
         if((deltaX >= 0)&&(deltaY >= 0)){
             angle = Math.toDegrees(Math.atan(deltaY/deltaX));
@@ -55,8 +56,18 @@ public class Paddle extends GameObject {
 
     public void move(){
         getAngle();
+        transformation = new AffineTransform();
+        // translation correction
+        transformation.translate(Constants.XRESOLUTION/2-Constants.PADDLEWIDTH/2,
+                                 Constants.YRESOLUTION+Constants.PADDLEHEIGHT/2);
+        // rotation
+        transformation.rotate(Math.toRadians(-angle), Constants.PADDLEWIDTH/2, -Constants.YRESOLUTION/2+Constants.PADDLEHEIGHT/2);
+    }
 
+    public void collide(Ball ball){
+        //check for collision
 
+        //change values
     }
 
 
@@ -65,9 +76,8 @@ public class Paddle extends GameObject {
 
         Graphics2D g2d = (Graphics2D) g;
 
-        AffineTransform transformation = new AffineTransform();
-        transformation.translate(1280/2-75, 720+15);
-        transformation.rotate(Math.toRadians(-angle), 75, -720/2+15);
+
+
 
         g2d.drawImage(paddle, transformation, null);
 
@@ -78,10 +88,7 @@ public class Paddle extends GameObject {
         String temp=String.valueOf(deltaX)+" "+String.valueOf(deltaY)+ " "+ angle;
         g2d.drawString(temp, (int)getObjectPosition().getX(), (int)getObjectPosition().getY());
 
-        g2d.drawLine(1280/2, 720/2, (int)getObjectPosition().getX(), 720/2);
-        g2d.drawLine(120/2, (int)getObjectPosition().getY(), (int)getObjectPosition().getX(), (int)getObjectPosition().getY());
-        g2d.drawLine(1280/2, 720/2, 1280/2, (int)getObjectPosition().getY());
-        g2d.drawLine((int)getObjectPosition().getX(), 720/2, (int)getObjectPosition().getX(), (int)getObjectPosition().getY());
+
 
 
 
