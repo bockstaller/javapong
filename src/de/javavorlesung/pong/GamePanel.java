@@ -24,8 +24,6 @@ public class GamePanel extends JPanel implements MouseMotionListener{
 
     private final Dimension prefSize = new Dimension(Constants.XRESOLUTION, Constants.YRESOLUTION+60);
 
-
-
     private boolean gameOver = false;
 
 
@@ -99,6 +97,9 @@ public class GamePanel extends JPanel implements MouseMotionListener{
     private void doOnTick(){
         testPaddle.move();
         testBall.move();
+        testBall.isStillinGame(gamearea);
+        testPaddle.collide(testBall);
+
         repaint();
     }
 
@@ -118,12 +119,10 @@ public class GamePanel extends JPanel implements MouseMotionListener{
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        //backgroundImage.paintIcon(null, g, 0, 0);
+
 
         g.setFont(new Font(Font.MONOSPACED, Font.BOLD, 19));
         g.setColor(Color.BLUE);
-        //g.drawString("Tanks destroyed: " + tanksDestroyedCounter, 22, prefSize.height-5);
-
 
 
         if (isGameOver()) {

@@ -17,15 +17,18 @@ public class Ball extends GameObject {
     private static final double size = 20;
 
     public Ball() {
-        super(new Coordinate(Constants.XRESOLUTION/2+10/2, Constants.YRESOLUTION/2+10/2),
+
+        super( new Coordinate(Constants.XRESOLUTION/2+10/2+(new Random().nextDouble()*100),
+                              Constants.YRESOLUTION/2+10/2+(new Random().nextDouble()*100)),
                 size,
                 size,
                 new Random().nextDouble()*360,
                 0.1);
-        setBallShape();
+        setBallShape(getObjectPosition());
     }
 
-    private void setBallShape(){
+    private void setBallShape(Coordinate position){
+        setObjectPosition(position);
         ballShape = new Ellipse2D.Double(getObjectPosition().getX(),
                                          getObjectPosition().getY(),
                                          getWidth(),
@@ -39,8 +42,9 @@ public class Ball extends GameObject {
     public boolean isStillinGame(Gamearea gamearea){
         Area area1 = new Area(gamearea.getGameareaShape());
         Area area2 = new Area(getBallShape());
-        area1.intersect(area2);
-        if (area1.isEmpty()){
+
+        area2.intersect(area1);
+        if (area2.isEmpty()){
             return false;
         }else{
             return true;
@@ -58,7 +62,8 @@ public class Ball extends GameObject {
         newY = Math.toDegrees(Math.sin(Math.toRadians(getMovingAngle())))*getMovingDistance();
         newY = newY + getObjectPosition().getY();
 
-        setObjectPosition(new Coordinate(newX, newY));
+
+        setBallShape(new Coordinate( newX, newY));
 
 
     }
