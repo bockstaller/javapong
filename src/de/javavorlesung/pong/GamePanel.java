@@ -22,6 +22,7 @@ public class GamePanel extends JPanel implements KeyListener, MouseMotionListene
     private Gamearea gamearea;
     private List<Ball> gameBalls = new LinkedList<>();
     private List<Ball> displayBalls = new LinkedList<>();
+    private List<Ball> temp = new LinkedList<>();
 
     private final Dimension prefSize = new Dimension(Constants.XRESOLUTION, Constants.YRESOLUTION);
 
@@ -96,17 +97,13 @@ public class GamePanel extends JPanel implements KeyListener, MouseMotionListene
         int key = e.getKeyCode();
 
         if (key == KeyEvent.VK_ESCAPE){
-            System.out.println("ending");
             System.exit(0);
         }else {
             pauseGame();
-            System.out.println("restarting");
             setGameOver(false);
             createGameObjects();
             start();
         }
-
-
     }
 
     private void createGameObjects() {
@@ -121,7 +118,7 @@ public class GamePanel extends JPanel implements KeyListener, MouseMotionListene
 
     private void newBall(){
         if (!getGameOver()) {
-            basespeed = basespeed + 3;
+            basespeed = basespeed + Constants.NEWBALLACCELERATION;
             gameBalls.add(new Ball(basespeed));
         }
     }
@@ -139,22 +136,28 @@ public class GamePanel extends JPanel implements KeyListener, MouseMotionListene
         for (Ball s : gameBalls) {
             s.move();
             if(paddle.checkCollision(s.getShape())){
-                System.out.println("test");
                 paddle.bounce(s);
                 calculateHighscore(s);
             }
 
-            for (Ball ball2 : gameBalls) {
-                if (s.checkCollision(ball2.getShape())){
-                    s.collide(ball2);
+            //collide balls
+            List<Ball> tempList = new LinkedList<>(gameBalls);
+            tempList.remove(s);
+            if (!(tempList.isEmpty())) {
+                for (Ball t : tempList) {
+                    if (s.checkCollision(t.getShape())) {
+                        s.collide(t);
+                    }
                 }
             }
         }
 
-
         for (Ball s : gameBalls) {
             moveToDisplayBall(s);
         }
+        gameBalls.removeAll(temp);
+        temp.clear();
+
 
         if (gameBalls.isEmpty()){
             endGame();
@@ -164,24 +167,31 @@ public class GamePanel extends JPanel implements KeyListener, MouseMotionListene
             s.move();
         }
 
-        for (Ball s : displayBalls) {
-            removeBall(s);
+
+        if (!displayBalls.isEmpty()) {
+            temp.clear();
+            for (Ball s : displayBalls) {
+                removeBall(s);
+            }
+            displayBalls.removeAll(temp);
+            temp.clear();
         }
+
     }
 
     private void moveToDisplayBall(Ball s){
         if(!s.checkCollision(gamearea.getShape())){
-            Ball temp = gameBalls.remove(gameBalls.indexOf(s));
-            displayBalls.add(temp);
+            temp.add(s);
+            displayBalls.add(s);
         }
     }
 
     private void removeBall(Ball s){
         if ((s.getObjectPosition().getX() < 0) || (s.getObjectPosition().getX() > Constants.XRESOLUTION)) {
-            displayBalls.remove(displayBalls.indexOf(s));
+            temp.add(s);
         }
         if ((s.getObjectPosition().getY() < 0) || (s.getObjectPosition().getY() > Constants.YRESOLUTION)) {
-            displayBalls.remove(displayBalls.indexOf(s));
+            temp.add(s);
         }
     }
 
@@ -225,7 +235,6 @@ public class GamePanel extends JPanel implements KeyListener, MouseMotionListene
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-
         gamearea.paintMe(g);
         paddle.paintMe(g);
 
@@ -245,7 +254,7 @@ public class GamePanel extends JPanel implements KeyListener, MouseMotionListene
                     g.getFont(),
                     Constants.GAMEAREAWIDTH);
             drawCenteredString( g,
-                    "Press ENTER to restart",
+                    "Press a Key to restart",
                     new Rectangle(0, 0, Constants.XRESOLUTION, Constants.YRESOLUTION+200),
                     g.getFont(),
                     Constants.GAMEAREAWIDTH);
@@ -276,12 +285,9 @@ public class GamePanel extends JPanel implements KeyListener, MouseMotionListene
     }
 
 
-
     @Override
     public void keyPressed(KeyEvent e) {
-        System.out.println("key pressed");
         if (gameOver) {
-            System.out.println("restarting or ending");
             restartGame(e);
         }
     }

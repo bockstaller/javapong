@@ -10,6 +10,7 @@ public class Constants {
 
     public static final int GAMEAREAWIDTH = 720;
     public static final double COLLISIONACCELERATION = 0.5;
+    public static final int NEWBALLACCELERATION = 1;
     public static final double BALLSIZE = 30;
     public static final double SPEEDFACTOR = 100.0;
 

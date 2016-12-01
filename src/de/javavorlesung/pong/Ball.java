@@ -42,6 +42,11 @@ public class Ball extends GameObject {
         double temp = ball.getMovingAngle();
         ball.setMovingAngle(getMovingAngle());
         setMovingAngle(temp);
+        //clearing ball from ball
+        while(checkCollision(ball.getShape())){
+            ball.move();
+            move();
+        }
     }
 
     @Override
