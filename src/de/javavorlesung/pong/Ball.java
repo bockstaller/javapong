@@ -22,7 +22,8 @@ public class Ball extends GameObject {
                               Constants.YRESOLUTION/2+10/2+(new Random().nextDouble()*100)),
                 size,
                 size,
-                new Random().nextDouble()*360,
+                //new Random().nextDouble()*90,
+                45,
                 0.1);
         setBallShape(getObjectPosition());
     }
@@ -59,7 +60,7 @@ public class Ball extends GameObject {
 
         newX = Math.toDegrees(Math.cos(Math.toRadians(getMovingAngle())))*getMovingDistance();
         newX = newX + getObjectPosition().getX();
-        newY = Math.toDegrees(Math.sin(Math.toRadians(getMovingAngle())))*getMovingDistance();
+        newY = -Math.toDegrees(Math.sin(Math.toRadians(getMovingAngle())))*getMovingDistance();
         newY = newY + getObjectPosition().getY();
 
 

@@ -100,6 +100,7 @@ public class Paddle extends GameObject {
         double newBallAngle;
         //Drehung gegen den Uhrzeigersinn um Winkel zu normalisieren
         double paddleAngle = 0;
+        //# sind beide Winkel gleich normiert?
         double ballAngle = (ball.getMovingAngle()-extractAngle());
 
 
@@ -110,16 +111,16 @@ public class Paddle extends GameObject {
         }
 
         if ((0<ballAngle)&&(ballAngle<90)){
-            newBallAngle = ballAngle-180;
+            newBallAngle = 180 - ballAngle;
             System.out.println("1 " +ball.getMovingAngle() + " - " + extractAngle() + " = "+ ballAngle + " => " + newBallAngle);
         } else if ((90<ballAngle)&&(ballAngle<180)){
-            newBallAngle = ballAngle - 180;
+            newBallAngle = 180 - ballAngle;
             System.out.println("2 " +ball.getMovingAngle() + " - " + extractAngle() + " = "+ ballAngle + " => " + newBallAngle);
         } else if ((180<ballAngle)&&(ballAngle<270)){
-            newBallAngle = (ballAngle-ballAngle);
+            newBallAngle = 360-(ballAngle-180);
             System.out.println("3 " +ball.getMovingAngle() + " - " + extractAngle() + " = "+ ballAngle + " => " + newBallAngle);
         } else if ((270<ballAngle)&&(ballAngle<360)){
-            newBallAngle = (360-ballAngle);
+            newBallAngle = (360 - ballAngle)+180;
             System.out.println("4 " +ball.getMovingAngle() + " - " + extractAngle() + " = "+ ballAngle + " => " + newBallAngle);
         } else if (ballAngle==0){
             newBallAngle = 180;
