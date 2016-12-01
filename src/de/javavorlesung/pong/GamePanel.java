@@ -2,25 +2,17 @@ package de.javavorlesung.pong;
 
 import com.sun.javafx.scene.control.skin.VirtualFlow;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
+import java.awt.event.*;
 
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.LinkedList;
-import java.awt.FontMetrics;
 
-public class GamePanel extends JPanel implements MouseMotionListener{
+public class GamePanel extends JPanel implements KeyListener, MouseMotionListener{
+
 
     private Integer highscore;
     private int basespeed;
@@ -48,6 +40,7 @@ public class GamePanel extends JPanel implements MouseMotionListener{
         startGame();
 
         addMouseMotionListener(this);
+        addKeyListener(this);
     }
 
 
@@ -72,7 +65,7 @@ public class GamePanel extends JPanel implements MouseMotionListener{
             }
         });
 
-        t1 = new Timer(9000, new ActionListener() {
+        t1 = new Timer(10000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e1) {
                 newBall();
@@ -93,7 +86,7 @@ public class GamePanel extends JPanel implements MouseMotionListener{
 
     private void newBall(){
         if (gameOver == false) {
-            basespeed = basespeed + 1;
+            basespeed = basespeed + 3;
             gameBalls.add(new Ball(basespeed));
         }
     }
@@ -102,24 +95,20 @@ public class GamePanel extends JPanel implements MouseMotionListener{
     private void doOnTick(){
         paddle.move();
         moveBalls();
-
-        System.out.println(gameBalls.toString());
-        System.out.println(displayBalls.toString());
         repaint();
     }
-
-
 
     private void moveBalls(){
         //move Balls
         for (Ball s : gameBalls) {
             s.move();
-
             if(paddle.checkCollision(s)){
                 paddle.bounce(s);
                 calculateHighscore(s);
             }
+        }
 
+        for (Ball s : gameBalls) {
             moveToDisplayBall(s);
         }
 
@@ -129,6 +118,9 @@ public class GamePanel extends JPanel implements MouseMotionListener{
 
         for (Ball s : displayBalls) {
             s.move();
+        }
+
+        for (Ball s : displayBalls) {
             removeBall(s);
         }
     }
@@ -173,12 +165,41 @@ public class GamePanel extends JPanel implements MouseMotionListener{
         }
     }
 
-    public void restartGame() {
-        pauseGame();
-        setGameOver(false);
-        createGameObjects();
-        startGame();
+    @Override
+    public void keyPressed(KeyEvent e) {
+        System.out.println("key pressed");
+        if (gameOver) {
+            System.out.println("restarting or ending");
+            restartGame(e);
+        }
     }
+
+    @Override
+    public  void keyReleased(KeyEvent e){}
+
+    @Override
+    public  void keyTyped(KeyEvent e){}
+
+
+    public void restartGame(KeyEvent e) {
+        int key = e.getKeyCode();
+
+        if (key == KeyEvent.VK_ESCAPE){
+            System.out.println("ending");
+            System.exit(0);
+        }else {
+            pauseGame();
+            System.out.println("restarting");
+            setGameOver(false);
+            createGameObjects();
+            startGame();
+        }
+
+
+    }
+
+
+
 
     private void endGame() {
         setGameOver(true);
@@ -195,9 +216,19 @@ public class GamePanel extends JPanel implements MouseMotionListener{
         paddle.setPosition(e);
     }
 
-    public void drawCenteredString(Graphics g, String text, Rectangle rect, Font font) {
+    public void drawCenteredString(Graphics g, String text, Rectangle rect, Font font, int max) {
         // Get the FontMetrics
         FontMetrics metrics = g.getFontMetrics(font);
+        int width = metrics.stringWidth(text);
+
+        while (max < width) {
+            Font font1 = font.deriveFont((float)font.getSize() - 10);
+            font = font1;
+            g.setFont(font);
+            metrics = g.getFontMetrics(font);
+            width = metrics.stringWidth(text);
+        }
+
         // Determine the X coordinate for the text
         int x = (rect.width - metrics.stringWidth(text)) / 2;
         // Determine the Y coordinate for the text (note we add the ascent, as in java 2d 0 is top of the screen)
@@ -206,8 +237,7 @@ public class GamePanel extends JPanel implements MouseMotionListener{
         g.setFont(font);
         // Draw the String
         g.drawString(text, x, y);
-        // Dispose the Graphics
-        g.dispose();
+
     }
 
     @Override
@@ -221,23 +251,24 @@ public class GamePanel extends JPanel implements MouseMotionListener{
         gamearea.paintMe(g);
         paddle.paintMe(g);
 
+        if (isGameOver()) {
+            g.setFont(new Font(Font.MONOSPACED, Font.BOLD, 80));
+            g.setColor(Color.BLACK);
+            drawCenteredString(g, "GAME OVER", new Rectangle(0, 0, 1280, 500), g.getFont(), 740);
+            drawCenteredString(g, "Highscore: " + highscore.toString(), new Rectangle(0, 0, 1280, 720), g.getFont(), 740);
+            drawCenteredString(g, "Press ENTER to restart", new Rectangle(0, 0, 1280, 1050), g.getFont(), 740);
+            drawCenteredString(g, "or ESC to leave", new Rectangle(0, 0, 1280, 1160), g.getFont(), 740);
+        } else {
+            g.setFont(new Font(Font.MONOSPACED, Font.BOLD, 300));
+            g.setColor(new Color(230,230,230));
+            drawCenteredString(g, highscore.toString(), new Rectangle(0, 0, 1280, 740), g.getFont(), 720);
+        }
+
         for (Ball s : gameBalls) {
             s.paintMe(g);
         }
         for (Ball s : displayBalls) {
             s.paintMe(g);
-        }
-
-        g.setFont(new Font(Font.MONOSPACED, Font.BOLD, 40));
-        g.setColor(Color.GRAY);
-        g.drawString(highscore.toString(),800,30);
-
-
-        if (isGameOver()) {
-            g.setFont(new Font(Font.MONOSPACED, Font.BOLD, 50));
-            g.setColor(Color.BLACK);
-            g.drawString("GAME OVER!", 500, 300);
-            g.drawString(highscore.toString(), 500, 400);
         }
 
     }

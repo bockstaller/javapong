@@ -76,7 +76,8 @@ public class Ball extends GameObject {
     @Override
     public void paintMe(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
-        g2d.drawOval((int)getObjectPosition().getX(), (int)getObjectPosition().getY(), (int)getWidth(), (int)getHeight());
+        g2d.setColor(Color.BLACK);
+        g2d.fillOval((int)getObjectPosition().getX(), (int)getObjectPosition().getY(), (int)getWidth(), (int)getHeight());
     }
 
 }
