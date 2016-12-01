@@ -1,5 +1,7 @@
 package de.javavorlesung.pong;
 
+import com.sun.javafx.scene.control.skin.VirtualFlow;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -14,13 +16,20 @@ import javax.swing.Timer;
 
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseEvent;
+import java.util.List;
+import java.util.LinkedList;
+import java.awt.FontMetrics;
 
 public class GamePanel extends JPanel implements MouseMotionListener{
 
+    private Integer highscore;
+    private int basespeed;
 
-    private Paddle testPaddle;
-    private Ball testBall;
+    private Paddle paddle;
     private Gamearea gamearea;
+
+    private List<Ball> gameBalls = new LinkedList<Ball>();
+    private List<Ball> displayBalls = new LinkedList<Ball>();
 
     private final Dimension prefSize = new Dimension(Constants.XRESOLUTION, Constants.YRESOLUTION+60);
 
@@ -28,6 +37,7 @@ public class GamePanel extends JPanel implements MouseMotionListener{
 
 
     private Timer t;
+    private Timer t1;
 
 
     public GamePanel() {
@@ -50,7 +60,10 @@ public class GamePanel extends JPanel implements MouseMotionListener{
     }
 
     private void initGame () {
+        basespeed = 10;
+        highscore = 0;
         createGameObjects();
+
 
         t = new Timer(20, new ActionListener() {
             @Override
@@ -58,32 +71,110 @@ public class GamePanel extends JPanel implements MouseMotionListener{
                 doOnTick();
             }
         });
+
+        t1 = new Timer(9000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e1) {
+                newBall();
+            }
+        });
+
     }
 
     private void createGameObjects() {
-        testPaddle = new Paddle(new Coordinate(100,100));
+        paddle = new Paddle(new Coordinate(100,100));
         gamearea = new Gamearea(new Coordinate(Constants.XRESOLUTION/2-720/2,
                                 Constants.YRESOLUTION/2-720/2+Constants.PADDLEHEIGHT));
-        testBall = new Ball();
+        gameBalls.clear();
+        gameBalls.add(new Ball(basespeed));
+        displayBalls.clear();
 
+    }
+
+    private void newBall(){
+        if (gameOver == false) {
+            basespeed = basespeed + 1;
+            gameBalls.add(new Ball(basespeed));
+        }
+    }
+
+
+    private void doOnTick(){
+        paddle.move();
+        moveBalls();
+
+        System.out.println(gameBalls.toString());
+        System.out.println(displayBalls.toString());
+        repaint();
     }
 
 
 
+    private void moveBalls(){
+        //move Balls
+        for (Ball s : gameBalls) {
+            s.move();
+
+            if(paddle.checkCollision(s)){
+                paddle.bounce(s);
+                calculateHighscore(s);
+            }
+
+            moveToDisplayBall(s);
+        }
+
+        if (gameBalls.isEmpty()){
+            endGame();
+        }
+
+        for (Ball s : displayBalls) {
+            s.move();
+            removeBall(s);
+        }
+    }
+
+    private void moveToDisplayBall(Ball s){
+        if(!s.isStillinGame(gamearea)){
+            Ball temp = gameBalls.remove(gameBalls.indexOf(s));
+            displayBalls.add(temp);
+        }
+    }
+
+    private void removeBall(Ball s){
+        if ((s.getObjectPosition().getX() < 0) || (s.getObjectPosition().getX() > Constants.XRESOLUTION)) {
+            displayBalls.remove(displayBalls.indexOf(s));
+        }
+        if ((s.getObjectPosition().getY() < 0) || (s.getObjectPosition().getY() > Constants.YRESOLUTION)) {
+            displayBalls.remove(displayBalls.indexOf(s));
+        }
+    }
+
+    private void calculateHighscore(Ball s){
+        //calculate highscore
+        Double temp = (highscore + gameBalls.size() * s.getMovingDistance());
+        highscore = temp.intValue();
+
+    }
+
     private void startGame() {
         t.start();
+        t1.start();
     }
 
     public void pauseGame() {
         t.stop();
+        t1.stop();
     }
 
     public void continueGame() {
-        if (!isGameOver()) t.start();
+        if (!isGameOver()){
+            t.start();
+            t1.start();
+        }
     }
 
     public void restartGame() {
-        //tanksDestroyedCounter = 0;
+        pauseGame();
         setGameOver(false);
         createGameObjects();
         startGame();
@@ -91,25 +182,32 @@ public class GamePanel extends JPanel implements MouseMotionListener{
 
     private void endGame() {
         setGameOver(true);
-        pauseGame();
     }
 
-    private void doOnTick(){
-        testPaddle.move();
-        testBall.move();
-        testBall.isStillinGame(gamearea);
-        testPaddle.collide(testBall);
 
-        repaint();
-    }
 
 
     public void mouseMoved(MouseEvent e) {
-        testPaddle.setPosition(e);
+        paddle.setPosition(e);
     }
 
-    public void mouseDragged(MouseEvent e) {
-        testPaddle.setPosition(e);
+    public void mouseDragged(MouseEvent e){
+        paddle.setPosition(e);
+    }
+
+    public void drawCenteredString(Graphics g, String text, Rectangle rect, Font font) {
+        // Get the FontMetrics
+        FontMetrics metrics = g.getFontMetrics(font);
+        // Determine the X coordinate for the text
+        int x = (rect.width - metrics.stringWidth(text)) / 2;
+        // Determine the Y coordinate for the text (note we add the ascent, as in java 2d 0 is top of the screen)
+        int y = ((rect.height - metrics.getHeight()) / 2) + metrics.getAscent();
+        // Set the font
+        g.setFont(font);
+        // Draw the String
+        g.drawString(text, x, y);
+        // Dispose the Graphics
+        g.dispose();
     }
 
     @Override
@@ -120,19 +218,27 @@ public class GamePanel extends JPanel implements MouseMotionListener{
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 
+        gamearea.paintMe(g);
+        paddle.paintMe(g);
 
-        g.setFont(new Font(Font.MONOSPACED, Font.BOLD, 19));
-        g.setColor(Color.BLUE);
+        for (Ball s : gameBalls) {
+            s.paintMe(g);
+        }
+        for (Ball s : displayBalls) {
+            s.paintMe(g);
+        }
+
+        g.setFont(new Font(Font.MONOSPACED, Font.BOLD, 40));
+        g.setColor(Color.GRAY);
+        g.drawString(highscore.toString(),800,30);
 
 
         if (isGameOver()) {
             g.setFont(new Font(Font.MONOSPACED, Font.BOLD, 50));
-            g.setColor(Color.RED);
-            g.drawString("GAME OVER!", 12, 12);
+            g.setColor(Color.BLACK);
+            g.drawString("GAME OVER!", 500, 300);
+            g.drawString(highscore.toString(), 500, 400);
         }
-        gamearea.paintMe(g);
-        testPaddle.paintMe(g);
-        testBall.paintMe(g);
 
     }
 

@@ -16,15 +16,14 @@ public class Ball extends GameObject {
     private Ellipse2D ballShape;
     private static final double size = 20;
 
-    public Ball() {
+    public Ball(double speed) {
 
         super( new Coordinate(Constants.XRESOLUTION/2+10/2+(new Random().nextDouble()*100),
                               Constants.YRESOLUTION/2+10/2+(new Random().nextDouble()*100)),
                 size,
                 size,
-                //new Random().nextDouble()*90,
-                45,
-                0.1);
+                new Random().nextDouble()*360,
+                speed);
         setBallShape(getObjectPosition());
     }
 
@@ -58,15 +57,17 @@ public class Ball extends GameObject {
         double newX;
         double newY;
 
-        newX = Math.toDegrees(Math.cos(Math.toRadians(getMovingAngle())))*getMovingDistance();
+        newX = Math.toDegrees(Math.cos(Math.toRadians(getMovingAngle())))*getMovingDistance()/100;
         newX = newX + getObjectPosition().getX();
-        newY = -Math.toDegrees(Math.sin(Math.toRadians(getMovingAngle())))*getMovingDistance();
+        newY = - Math.toDegrees(Math.sin(Math.toRadians(getMovingAngle())))*getMovingDistance()/100;
         newY = newY + getObjectPosition().getY();
 
-
         setBallShape(new Coordinate( newX, newY));
+    }
 
-
+    public void collide(Ball ball){
+        setMovingAngle(getMovingAngle()+180);
+        ball.setMovingAngle(getMovingAngle()+180);
     }
 
 

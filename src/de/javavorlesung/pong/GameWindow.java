@@ -28,7 +28,7 @@ public class GameWindow extends JFrame {
         pack();
 
         setTitle("Pong");
-        setLocation(10, 10);
+        setLocationRelativeTo(null);
         setResizable(false);
 
         setVisible(true);

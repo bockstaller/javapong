@@ -63,13 +63,9 @@ public class Paddle extends GameObject {
         transformation.rotate(Math.toRadians(-angle), Constants.PADDLEWIDTH/2, -Constants.YRESOLUTION/2+Constants.PADDLEHEIGHT/2);
     }
 
-    public void collide(Ball ball){
-        if(checkCollision(ball)){
-            bounce(ball);
-        }
-    }
 
-    private boolean checkCollision(Ball ball){
+
+    public boolean checkCollision(Ball ball){
         Area area1 = new Area(ball.getBallShape());
         Area area2 = new Area(getPaddle());
         area1.intersect(area2);
@@ -112,28 +108,28 @@ public class Paddle extends GameObject {
 
         if ((0<ballAngle)&&(ballAngle<90)){
             newBallAngle = 180 - ballAngle;
-            System.out.println("1 " +ball.getMovingAngle() + " - " + extractAngle() + " = "+ ballAngle + " => " + newBallAngle);
+            //System.out.println("1 " +ball.getMovingAngle() + " - " + extractAngle() + " = "+ ballAngle + " => " + newBallAngle);
         } else if ((90<ballAngle)&&(ballAngle<180)){
             newBallAngle = 180 - ballAngle;
-            System.out.println("2 " +ball.getMovingAngle() + " - " + extractAngle() + " = "+ ballAngle + " => " + newBallAngle);
+            //System.out.println("2 " +ball.getMovingAngle() + " - " + extractAngle() + " = "+ ballAngle + " => " + newBallAngle);
         } else if ((180<ballAngle)&&(ballAngle<270)){
             newBallAngle = 360-(ballAngle-180);
-            System.out.println("3 " +ball.getMovingAngle() + " - " + extractAngle() + " = "+ ballAngle + " => " + newBallAngle);
+            //System.out.println("3 " +ball.getMovingAngle() + " - " + extractAngle() + " = "+ ballAngle + " => " + newBallAngle);
         } else if ((270<ballAngle)&&(ballAngle<360)){
             newBallAngle = (360 - ballAngle)+180;
-            System.out.println("4 " +ball.getMovingAngle() + " - " + extractAngle() + " = "+ ballAngle + " => " + newBallAngle);
+            //System.out.println("4 " +ball.getMovingAngle() + " - " + extractAngle() + " = "+ ballAngle + " => " + newBallAngle);
         } else if (ballAngle==0){
             newBallAngle = 180;
-            System.out.println("5 " +ball.getMovingAngle() + " - " + extractAngle() + " = "+ ballAngle );
+            //System.out.println("5 " +ball.getMovingAngle() + " - " + extractAngle() + " = "+ ballAngle );
         } else if (ballAngle==90){
             newBallAngle = 270;
-            System.out.println("6 " +ball.getMovingAngle() + " - " + extractAngle() + " = "+ ballAngle );
+            //System.out.println("6 " +ball.getMovingAngle() + " - " + extractAngle() + " = "+ ballAngle );
         } else if (ballAngle==180) {
             newBallAngle = 0;
-            System.out.println("7 " +ball.getMovingAngle() + " - " + extractAngle() + " = "+ ballAngle );
+            //System.out.println("7 " +ball.getMovingAngle() + " - " + extractAngle() + " = "+ ballAngle );
         } else {
             newBallAngle = 90;
-            System.out.println("8 " +ball.getMovingAngle() + " - " + extractAngle() + " = "+ ballAngle );
+            //System.out.println("8 " +ball.getMovingAngle() + " - " + extractAngle() + " = "+ ballAngle );
         }
 
         //Drehung mit dem Uhrzeigersinn um die Normalisierung aufzuheuben
@@ -142,6 +138,7 @@ public class Paddle extends GameObject {
         while(checkCollision(ball)){
             ball.move();
         }
+        ball.setMovingDistance(ball.getMovingDistance()+0.5);
 
     }
 
