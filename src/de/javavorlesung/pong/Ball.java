@@ -5,12 +5,11 @@ import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
-import java.awt.geom.Area;
 import java.util.Random;
 
 public class Ball extends GameObject {
 
-    private Ellipse2D ballShape;
+
 
 
     public Ball(double speed) {
@@ -27,23 +26,12 @@ public class Ball extends GameObject {
 
     private void setBallShape(Coordinate position){
         setObjectPosition(position);
-        ballShape = new Ellipse2D.Double(getObjectPosition().getX(),
+        super.setShape(new Ellipse2D.Double(getObjectPosition().getX(),
                                          getObjectPosition().getY(),
                                          getWidth(),
-                                         getHeight());
+                                         getHeight()));
     }
 
-    public Ellipse2D getBallShape(){
-        return ballShape;
-    }
-
-    public boolean isStillInGame(Gamearea gamearea){
-        Area area1 = new Area(gamearea.getGameareaShape());
-        Area area2 = new Area(getBallShape());
-
-        area2.intersect(area1);
-        return area2.isEmpty();
-    }
 
     public void move(){
         double newX;
@@ -58,8 +46,9 @@ public class Ball extends GameObject {
     }
 
     public void collide(Ball ball){
-        setMovingAngle(getMovingAngle()+180);
-        ball.setMovingAngle(getMovingAngle()+180);
+        double temp = ball.getMovingAngle();
+        ball.setMovingAngle(getMovingAngle());
+        setMovingAngle(temp);
     }
 
     @Override

@@ -1,6 +1,8 @@
 package de.javavorlesung.pong;
 
 
+import java.awt.geom.Area;
+import java.awt.Shape;
 
 public abstract class GameObject {
 
@@ -9,6 +11,7 @@ public abstract class GameObject {
     private double height;
     private double movingAngle;
     private double movingDistance;
+    private Shape shape;
 
     public GameObject(Coordinate objectPosition, double width, double height, double angle, double speed) {
         this.objectPosition = objectPosition;
@@ -22,6 +25,13 @@ public abstract class GameObject {
         return objectPosition;
     }
 
+    public void setShape(Shape shape){
+        this.shape = shape;
+    }
+    public Shape getShape(){
+        return shape;
+    }
+
     public void setObjectPosition(Coordinate objectPosition) {
         this.objectPosition = objectPosition;
     }
@@ -30,17 +40,10 @@ public abstract class GameObject {
         return width;
     }
 
-    public void setWidth(double width) {
-        this.width = width;
-    }
-
     public double getHeight() {
         return height;
     }
 
-    public void setHeight(double height) {
-        this.height = height;
-    }
 
     public double getMovingAngle() {
         return movingAngle;
@@ -66,35 +69,16 @@ public abstract class GameObject {
         return this.getObjectPosition().getY() + this.getHeight() < that.getObjectPosition().getY();
     }
 
-    public boolean touches(GameObject that) {
-        if(this.isLeftOf(that)) return false;
-        if(that.isLeftOf(this)) return false;
-        if(this.isAbove(that))  return false;
-        if(that.isAbove(this))  return false;
-
-        return true;
+    public boolean checkCollision(Shape shape1){
+        Area tempArea1 = new Area(shape1);
+        Area tempArea2 = new Area(this.shape);
+        tempArea1.intersect(tempArea2);
+        return !tempArea1.isEmpty();
     }
 
-    public static Coordinate polarToCartesianCoordinates(double angle) {
 
-        // X-Achse zeigt nach Osten, Y-Achse zeigt nach Süden beim Zeichnen
-        double x = Math.cos(angle);
-        double y = Math.sin(angle);
 
-        return new Coordinate(x, y);
-    }
 
-    public void moveGameObject() {
-
-        Coordinate direction = polarToCartesianCoordinates(movingAngle);
-
-        objectPosition.setX(objectPosition.getX() + direction.getX() * movingDistance);
-        objectPosition.setY(objectPosition.getY() + direction.getY() * movingDistance);
-    }
-
-    public void makeMove() {
-        moveGameObject();
-    }
 
     protected abstract void paintMe(java.awt.Graphics g);
 

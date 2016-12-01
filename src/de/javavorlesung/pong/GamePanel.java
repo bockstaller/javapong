@@ -42,6 +42,23 @@ public class GamePanel extends JPanel implements KeyListener, MouseMotionListene
         startGame();
     }
 
+    private void startGame() {
+        t.start();
+        t1.start();
+    }
+
+    public void pauseGame() {
+        t.stop();
+        t1.stop();
+    }
+
+    public void continueGame() {
+        if (!isGameOver()){
+            t.start();
+            t1.start();
+        }
+    }
+
 
     private void initGame () {
         basespeed = 10;
@@ -75,6 +92,10 @@ public class GamePanel extends JPanel implements KeyListener, MouseMotionListene
 
     }
 
+    private void endGame() {
+        setGameOver(true);
+    }
+
     public boolean isGameOver() {
         return gameOver;
     }
@@ -84,34 +105,33 @@ public class GamePanel extends JPanel implements KeyListener, MouseMotionListene
     }
 
     private void newBall(){
-        if (gameOver == false) {
+        if (!isGameOver()) {
             basespeed = basespeed + 3;
             gameBalls.add(new Ball(basespeed));
         }
     }
 
-
     private void doOnTick(){
-
         paddle.move();
-
         moveBalls();
-
         repaint();
     }
 
     private void moveBalls(){
-        //move Balls
+        //move game balls
         for (Ball s : gameBalls) {
             s.move();
-
-
-            if(paddle.checkCollision(s)){
+            if(paddle.checkCollision(s.getShape())){
+                System.out.println("test");
                 paddle.bounce(s);
                 calculateHighscore(s);
             }
-
+            /**
+            for (Ball ball2 : gameBalls){
+                s.collide(ball2);
+            }**/
         }
+
 
         for (Ball s : gameBalls) {
             moveToDisplayBall(s);
@@ -131,7 +151,7 @@ public class GamePanel extends JPanel implements KeyListener, MouseMotionListene
     }
 
     private void moveToDisplayBall(Ball s){
-        if(s.isStillInGame(gamearea)){
+        if(!s.checkCollision(gamearea.getShape())){
             Ball temp = gameBalls.remove(gameBalls.indexOf(s));
             displayBalls.add(temp);
         }
@@ -153,22 +173,7 @@ public class GamePanel extends JPanel implements KeyListener, MouseMotionListene
 
     }
 
-    private void startGame() {
-        t.start();
-        t1.start();
-    }
 
-    public void pauseGame() {
-        t.stop();
-        t1.stop();
-    }
-
-    public void continueGame() {
-        if (!isGameOver()){
-            t.start();
-            t1.start();
-        }
-    }
 
     @Override
     public void keyPressed(KeyEvent e) {
@@ -197,17 +202,10 @@ public class GamePanel extends JPanel implements KeyListener, MouseMotionListene
             System.out.println("restarting");
             setGameOver(false);
             createGameObjects();
-            startGame();
+            start();
         }
 
 
-    }
-
-
-
-
-    private void endGame() {
-        setGameOver(true);
     }
 
     public void mouseMoved(MouseEvent e) {

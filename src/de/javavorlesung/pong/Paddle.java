@@ -1,5 +1,7 @@
 package de.javavorlesung.pong;
 
+import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
+
 import java.awt.geom.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -8,29 +10,41 @@ import java.awt.Graphics;
 
 public class Paddle extends GameObject {
 
-    private double angle;
-    private RoundRectangle2D paddle;
-    private AffineTransform transformation = new AffineTransform();
 
+    private AffineTransform transformation;
+    private double angletemp;
 
 
     public Paddle (Coordinate position) {
         super(position, 0, 0, 0, 0);
-        paddle = new RoundRectangle2D.Double(0, 0, Constants.PADDLEWIDTH, Constants.PADDLEHEIGHT, 10, 10);
+
+        RoundRectangle2D temp = new RoundRectangle2D.Double(0, 0, Constants.PADDLEWIDTH, Constants.PADDLEHEIGHT, 10, 10);
+
+        // translation correction
+        angletemp = getAngle();
+        transformation = new AffineTransform();
+        transformation.translate(   Constants.XRESOLUTION/2-Constants.PADDLEWIDTH/2,
+                                    Constants.YRESOLUTION/2+Constants.GAMEAREAWIDTH/2-Constants.PADDLEHEIGHT/2);
+        setShape(transformation.createTransformedShape(temp));
+
+        // correcting the backrotation
+        transformation = new AffineTransform();
+        transformation.rotate(  Math.toRadians(-angletemp),
+                                Constants.XRESOLUTION/2,
+                                Constants.YRESOLUTION/2);
+
+        setShape(transformation.createTransformedShape(getShape()));
     }
 
-    public Shape getPaddle(){
-        return transformation.createTransformedShape(paddle);
-    }
 
     public void setPosition(MouseEvent e){
         super.setObjectPosition(new Coordinate(e.getX(), e.getY()));
     }
 
-    private void getAngle(){
+    private double getAngle(){
         double deltaX = getObjectPosition().getX()-(Constants.XRESOLUTION/2);
         double deltaY = (Constants.YRESOLUTION/2)-getObjectPosition().getY();
-
+        double angle = 0;
         if((deltaX >= 0)&&(deltaY >= 0)){
             angle = Math.toDegrees(Math.atan(deltaY/deltaX));
         }else if((deltaX >= 0)&&(deltaY < 0)){
@@ -40,45 +54,41 @@ public class Paddle extends GameObject {
         }else{
             angle = Math.toDegrees(Math.atan(deltaY/deltaX))+180;
         }
-        angle = angle + 90;
+        return angle+90;
     }
 
     public void move(){
-        getAngle();
+        //rotating back to start
         transformation = new AffineTransform();
-        // translation correction
-        transformation.translate(Constants.XRESOLUTION/2-Constants.PADDLEWIDTH/2,
-                                 Constants.YRESOLUTION/2+Constants.GAMEAREAWIDTH/2-Constants.PADDLEHEIGHT/2);
-        // rotation
-        transformation.rotate(  Math.toRadians(-angle),
-                                Constants.PADDLEWIDTH/2,
-                                -Constants.GAMEAREAWIDTH/2+Constants.PADDLEHEIGHT/2);
+        transformation.rotate(  Math.toRadians(+angletemp),
+                Constants.XRESOLUTION/2,
+                Constants.YRESOLUTION/2);
+        setShape(transformation.createTransformedShape(getShape()));
+
+        angletemp= getAngle();
+
+        //rotating to position
+        transformation = new AffineTransform();
+        transformation.rotate(  Math.toRadians(-angletemp),
+                Constants.XRESOLUTION/2,
+                Constants.YRESOLUTION/2);
+        setShape(transformation.createTransformedShape(getShape()));
 
     }
 
-    private double extractAngle()
-    {
+
+
+    private double extractAngle() {
         Point2D p0 = new Point();
         Point2D p1 = new Point(1,0);
         Point2D pp0 = transformation.transform(p0, null);
         Point2D pp1 = transformation.transform(p1, null);
         double dx = pp1.getX() - pp0.getX();
         double dy = pp1.getY() - pp0.getY();
-        double angle = Math.toDegrees(Math.atan2(dx, dy));
-        angle = angle + 180;
-        return angle;
+        double extractedAngle = Math.toDegrees(Math.atan2(dx, dy));
+        extractedAngle = extractedAngle + 180;
+        return extractedAngle;
     }
-
-
-    public boolean checkCollision(Ball ball){
-        Area tempArea1 = new Area(ball.getBallShape());
-        Area tempArea2 = new Area(getPaddle());
-
-        tempArea1.intersect(tempArea2);
-
-        return !tempArea1.isEmpty();
-    }
-
 
 
 
@@ -86,7 +96,7 @@ public class Paddle extends GameObject {
         double newBallAngle;
         //Drehung gegen den Uhrzeigersinn um Winkel zu normalisieren
         double paddleAngle = 0;
-        //# sind beide Winkel gleich normiert?
+
         double ballAngle = (ball.getMovingAngle()-extractAngle());
 
 
@@ -128,7 +138,7 @@ public class Paddle extends GameObject {
         ball.setMovingAngle(newBallAngle);
 
         //clearing ball from paddle
-        while(checkCollision(ball)){
+        while(checkCollision(ball.getShape())){
             ball.move();
         }
         //increasing speed
@@ -141,10 +151,13 @@ public class Paddle extends GameObject {
     public void paintMe(Graphics g) {
 
         Graphics2D g2d = (Graphics2D) g;
+        //Puffer for transformation
         AffineTransform saveTransform = g2d.getTransform();
+
         g2d.setColor(new Color(100, 100, 100));
-        g2d.transform(transformation);
-        g2d.fill(paddle);
+        g2d.fill(getShape());
+
+        //Puffer for transformation
         g2d.setTransform(saveTransform);
     }
 
