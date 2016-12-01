@@ -28,6 +28,7 @@ public abstract class GameObject {
     public void setShape(Shape shape){
         this.shape = shape;
     }
+
     public Shape getShape(){
         return shape;
     }
@@ -61,24 +62,12 @@ public abstract class GameObject {
         this.movingDistance = movingDistance;
     }
 
-    public boolean isLeftOf(GameObject that) {
-        return this.getObjectPosition().getX() + this.getWidth() < that.getObjectPosition().getX();
-    }
-
-    public boolean isAbove(GameObject that) {
-        return this.getObjectPosition().getY() + this.getHeight() < that.getObjectPosition().getY();
-    }
-
     public boolean checkCollision(Shape shape1){
         Area tempArea1 = new Area(shape1);
         Area tempArea2 = new Area(this.shape);
         tempArea1.intersect(tempArea2);
         return !tempArea1.isEmpty();
     }
-
-
-
-
 
     protected abstract void paintMe(java.awt.Graphics g);
 

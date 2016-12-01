@@ -1,17 +1,10 @@
 package de.javavorlesung.pong;
 
-
-import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
-
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.util.Random;
 
 public class Ball extends GameObject {
-
-
-
-
     public Ball(double speed) {
 
         super( new Coordinate(Constants.XRESOLUTION/2+10/2+(new Random().nextDouble()*100),
