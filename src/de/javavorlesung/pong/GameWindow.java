@@ -1,7 +1,5 @@
 package de.javavorlesung.pong;
 
-
-
 import java.awt.Dimension;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -12,27 +10,29 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 
+
 public class GameWindow extends JFrame {
 
-    private final GamePanel pongGamePanel;
+    private GamePanel pongGamePanel;
 
     public GameWindow() {
 
         this.pongGamePanel = new GamePanel();
 
-        registerWindowListener();
-        //createMenu();
+    }
 
+    public void startGame(){
+        registerWindowListener();
         add(pongGamePanel);
 
         pack();
 
         setTitle("Pong");
         setLocationRelativeTo(null);
-        setResizable(false);
-
+        setResizable(true);
         setVisible(true);
 
+        pongGamePanel.start();
 
     }
 

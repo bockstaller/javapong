@@ -10,7 +10,7 @@ public class Gamearea extends GameObject {
     private Ellipse2D areaShape;
 
     public Gamearea(Coordinate position) {
-        super(position, 720, 720, 0, 0);
+        super(position, Constants.GAMEAREAWIDTH, Constants.GAMEAREAWIDTH, 0, 0);
         setGameareaShape();
     }
 

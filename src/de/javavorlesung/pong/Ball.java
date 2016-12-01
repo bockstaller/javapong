@@ -1,29 +1,27 @@
 package de.javavorlesung.pong;
 
-import javax.imageio.ImageIO;
+
+import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
+
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Area;
-import java.io.File;
-import java.io.IOException;
 import java.util.Random;
 
 public class Ball extends GameObject {
 
-
     private Ellipse2D ballShape;
-    private static final double size = 20;
+
 
     public Ball(double speed) {
 
         super( new Coordinate(Constants.XRESOLUTION/2+10/2+(new Random().nextDouble()*100),
                               Constants.YRESOLUTION/2+10/2+(new Random().nextDouble()*100)),
-                size,
-                size,
+                Constants.BALLSIZE,
+                Constants.BALLSIZE,
                 new Random().nextDouble()*360,
                 speed);
+        
         setBallShape(getObjectPosition());
     }
 
@@ -39,27 +37,21 @@ public class Ball extends GameObject {
         return ballShape;
     }
 
-    public boolean isStillinGame(Gamearea gamearea){
+    public boolean isStillInGame(Gamearea gamearea){
         Area area1 = new Area(gamearea.getGameareaShape());
         Area area2 = new Area(getBallShape());
 
         area2.intersect(area1);
-        if (area2.isEmpty()){
-            return false;
-        }else{
-            return true;
-        }
+        return area2.isEmpty();
     }
-
-
 
     public void move(){
         double newX;
         double newY;
 
-        newX = Math.toDegrees(Math.cos(Math.toRadians(getMovingAngle())))*getMovingDistance()/100;
+        newX = Math.toDegrees(Math.cos(Math.toRadians(getMovingAngle())))*getMovingDistance()/Constants.SPEEDFACTOR;
         newX = newX + getObjectPosition().getX();
-        newY = - Math.toDegrees(Math.sin(Math.toRadians(getMovingAngle())))*getMovingDistance()/100;
+        newY = - Math.toDegrees(Math.sin(Math.toRadians(getMovingAngle())))*getMovingDistance()/Constants.SPEEDFACTOR;
         newY = newY + getObjectPosition().getY();
 
         setBallShape(new Coordinate( newX, newY));
@@ -69,9 +61,6 @@ public class Ball extends GameObject {
         setMovingAngle(getMovingAngle()+180);
         ball.setMovingAngle(getMovingAngle()+180);
     }
-
-
-
 
     @Override
     public void paintMe(Graphics g) {

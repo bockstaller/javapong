@@ -1,22 +1,14 @@
 package de.javavorlesung.pong;
 
 import java.awt.geom.*;
-import java.math.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionListener;
 import java.awt.Graphics;
-import java.awt.image.*;
-import java.io.*;
-import javax.imageio.*;
-import java.util.LinkedList;
+
 
 public class Paddle extends GameObject {
 
     private double angle;
-    private double deltaX;
-    private double deltaY;
-
     private RoundRectangle2D paddle;
     private AffineTransform transformation = new AffineTransform();
 
@@ -24,22 +16,20 @@ public class Paddle extends GameObject {
 
     public Paddle (Coordinate position) {
         super(position, 0, 0, 0, 0);
-
-        paddle = new RoundRectangle2D.Double(0, 0, 150, 30, 10, 10);
+        paddle = new RoundRectangle2D.Double(0, 0, Constants.PADDLEWIDTH, Constants.PADDLEHEIGHT, 10, 10);
     }
 
     public Shape getPaddle(){
         return transformation.createTransformedShape(paddle);
     }
 
-
     public void setPosition(MouseEvent e){
         super.setObjectPosition(new Coordinate(e.getX(), e.getY()));
     }
 
     private void getAngle(){
-        deltaX = getObjectPosition().getX()-(Constants.XRESOLUTION/2);
-        deltaY = (Constants.YRESOLUTION/2)-getObjectPosition().getY();
+        double deltaX = getObjectPosition().getX()-(Constants.XRESOLUTION/2);
+        double deltaY = (Constants.YRESOLUTION/2)-getObjectPosition().getY();
 
         if((deltaX >= 0)&&(deltaY >= 0)){
             angle = Math.toDegrees(Math.atan(deltaY/deltaX));
@@ -58,23 +48,12 @@ public class Paddle extends GameObject {
         transformation = new AffineTransform();
         // translation correction
         transformation.translate(Constants.XRESOLUTION/2-Constants.PADDLEWIDTH/2,
-                                 Constants.YRESOLUTION+Constants.PADDLEHEIGHT/2);
+                                 Constants.YRESOLUTION/2+Constants.GAMEAREAWIDTH/2-Constants.PADDLEHEIGHT/2);
         // rotation
-        transformation.rotate(Math.toRadians(-angle), Constants.PADDLEWIDTH/2, -Constants.YRESOLUTION/2+Constants.PADDLEHEIGHT/2);
-    }
+        transformation.rotate(  Math.toRadians(-angle),
+                                Constants.PADDLEWIDTH/2,
+                                -Constants.GAMEAREAWIDTH/2+Constants.PADDLEHEIGHT/2);
 
-
-
-    public boolean checkCollision(Ball ball){
-        Area area1 = new Area(ball.getBallShape());
-        Area area2 = new Area(getPaddle());
-        area1.intersect(area2);
-        extractAngle();
-        if (area1.isEmpty()){
-            return false;
-        }else{
-            return true;
-        }
     }
 
     private double extractAngle()
@@ -87,9 +66,20 @@ public class Paddle extends GameObject {
         double dy = pp1.getY() - pp0.getY();
         double angle = Math.toDegrees(Math.atan2(dx, dy));
         angle = angle + 180;
-
         return angle;
     }
+
+
+    public boolean checkCollision(Ball ball){
+        Area tempArea1 = new Area(ball.getBallShape());
+        Area tempArea2 = new Area(getPaddle());
+
+        tempArea1.intersect(tempArea2);
+
+        return !tempArea1.isEmpty();
+    }
+
+
 
 
     public void bounce(Ball ball){
@@ -105,6 +95,7 @@ public class Paddle extends GameObject {
         } else if (ballAngle<0){
             ballAngle = ballAngle +360;
         }
+
 
         if ((0<ballAngle)&&(ballAngle<90)){
             newBallAngle = 180 - ballAngle;
@@ -132,13 +123,16 @@ public class Paddle extends GameObject {
             //System.out.println("8 " +ball.getMovingAngle() + " - " + extractAngle() + " = "+ ballAngle );
         }
 
-        //Drehung mit dem Uhrzeigersinn um die Normalisierung aufzuheuben
+        //reverting the rotation
         newBallAngle = Math.abs(newBallAngle + extractAngle());
         ball.setMovingAngle(newBallAngle);
+
+        //clearing ball from paddle
         while(checkCollision(ball)){
             ball.move();
         }
-        ball.setMovingDistance(ball.getMovingDistance()+0.5);
+        //increasing speed
+        ball.setMovingDistance(ball.getMovingDistance()+Constants.COLLISIONACCELERATION);
 
     }
 

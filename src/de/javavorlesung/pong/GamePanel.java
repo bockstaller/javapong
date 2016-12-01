@@ -1,6 +1,5 @@
 package de.javavorlesung.pong;
 
-import com.sun.javafx.scene.control.skin.VirtualFlow;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -13,50 +12,41 @@ import java.util.LinkedList;
 
 public class GamePanel extends JPanel implements KeyListener, MouseMotionListener{
 
-
+    //Gameproperties
     private Integer highscore;
     private int basespeed;
-
-    private Paddle paddle;
-    private Gamearea gamearea;
-
-    private List<Ball> gameBalls = new LinkedList<Ball>();
-    private List<Ball> displayBalls = new LinkedList<Ball>();
-
-    private final Dimension prefSize = new Dimension(Constants.XRESOLUTION, Constants.YRESOLUTION+60);
-
     private boolean gameOver = false;
 
+    //Gameobjects
+    private Paddle paddle;
+    private Gamearea gamearea;
+    private List<Ball> gameBalls = new LinkedList<>();
+    private List<Ball> displayBalls = new LinkedList<>();
+
+    private final Dimension prefSize = new Dimension(Constants.XRESOLUTION, Constants.YRESOLUTION);
 
     private Timer t;
     private Timer t1;
 
 
-    public GamePanel() {
+
+    public GamePanel(){
         setFocusable(true);
         setPreferredSize(prefSize);
-
-        initGame();
-        startGame();
-
         addMouseMotionListener(this);
         addKeyListener(this);
     }
 
-
-    public boolean isGameOver() {
-        return gameOver;
+    public void start(){
+        initGame();
+        startGame();
     }
 
-    public void setGameOver(boolean gameOver) {
-        this.gameOver = gameOver;
-    }
 
     private void initGame () {
         basespeed = 10;
         highscore = 0;
         createGameObjects();
-
 
         t = new Timer(20, new ActionListener() {
             @Override
@@ -64,6 +54,7 @@ public class GamePanel extends JPanel implements KeyListener, MouseMotionListene
                 doOnTick();
             }
         });
+
 
         t1 = new Timer(10000, new ActionListener() {
             @Override
@@ -76,12 +67,20 @@ public class GamePanel extends JPanel implements KeyListener, MouseMotionListene
 
     private void createGameObjects() {
         paddle = new Paddle(new Coordinate(100,100));
-        gamearea = new Gamearea(new Coordinate(Constants.XRESOLUTION/2-720/2,
-                                Constants.YRESOLUTION/2-720/2+Constants.PADDLEHEIGHT));
+        gamearea = new Gamearea(new Coordinate(Constants.XRESOLUTION/2-Constants.GAMEAREAWIDTH/2,
+                                                Constants.YRESOLUTION/2-Constants.GAMEAREAWIDTH/2));
         gameBalls.clear();
         gameBalls.add(new Ball(basespeed));
         displayBalls.clear();
 
+    }
+
+    public boolean isGameOver() {
+        return gameOver;
+    }
+
+    public void setGameOver(boolean gameOver) {
+        this.gameOver = gameOver;
     }
 
     private void newBall(){
@@ -93,8 +92,11 @@ public class GamePanel extends JPanel implements KeyListener, MouseMotionListene
 
 
     private void doOnTick(){
+
         paddle.move();
+
         moveBalls();
+
         repaint();
     }
 
@@ -102,10 +104,13 @@ public class GamePanel extends JPanel implements KeyListener, MouseMotionListene
         //move Balls
         for (Ball s : gameBalls) {
             s.move();
+
+
             if(paddle.checkCollision(s)){
                 paddle.bounce(s);
                 calculateHighscore(s);
             }
+
         }
 
         for (Ball s : gameBalls) {
@@ -126,7 +131,7 @@ public class GamePanel extends JPanel implements KeyListener, MouseMotionListene
     }
 
     private void moveToDisplayBall(Ball s){
-        if(!s.isStillinGame(gamearea)){
+        if(s.isStillInGame(gamearea)){
             Ball temp = gameBalls.remove(gameBalls.indexOf(s));
             displayBalls.add(temp);
         }
@@ -205,9 +210,6 @@ public class GamePanel extends JPanel implements KeyListener, MouseMotionListene
         setGameOver(true);
     }
 
-
-
-
     public void mouseMoved(MouseEvent e) {
         paddle.setPosition(e);
     }
@@ -252,16 +254,40 @@ public class GamePanel extends JPanel implements KeyListener, MouseMotionListene
         paddle.paintMe(g);
 
         if (isGameOver()) {
-            g.setFont(new Font(Font.MONOSPACED, Font.BOLD, 80));
+            g.setFont(  new Font(Font.MONOSPACED,
+                        Font.BOLD,
+                        80));
             g.setColor(Color.BLACK);
-            drawCenteredString(g, "GAME OVER", new Rectangle(0, 0, 1280, 500), g.getFont(), 740);
-            drawCenteredString(g, "Highscore: " + highscore.toString(), new Rectangle(0, 0, 1280, 720), g.getFont(), 740);
-            drawCenteredString(g, "Press ENTER to restart", new Rectangle(0, 0, 1280, 1050), g.getFont(), 740);
-            drawCenteredString(g, "or ESC to leave", new Rectangle(0, 0, 1280, 1160), g.getFont(), 740);
+            drawCenteredString( g,
+                                "GAME OVER",
+                                new Rectangle(0, 0, Constants.XRESOLUTION, Constants.YRESOLUTION-200),
+                                g.getFont(),
+                                Constants.GAMEAREAWIDTH);
+            drawCenteredString( g,
+                                "Highscore: " + highscore.toString(),
+                                new Rectangle(0, 0, Constants.XRESOLUTION, Constants.YRESOLUTION),
+                                g.getFont(),
+                                Constants.GAMEAREAWIDTH);
+            drawCenteredString( g,
+                                "Press ENTER to restart",
+                                new Rectangle(0, 0, Constants.XRESOLUTION, Constants.YRESOLUTION+200),
+                                g.getFont(),
+                                Constants.GAMEAREAWIDTH);
+            drawCenteredString( g,
+                                "or ESC to leave",
+                                new Rectangle(0, 0, Constants.XRESOLUTION, Constants.YRESOLUTION+300),
+                                g.getFont(),
+                                Constants.GAMEAREAWIDTH);
         } else {
-            g.setFont(new Font(Font.MONOSPACED, Font.BOLD, 300));
+            g.setFont(  new Font(Font.MONOSPACED,
+                        Font.BOLD,
+                        300));
             g.setColor(new Color(230,230,230));
-            drawCenteredString(g, highscore.toString(), new Rectangle(0, 0, 1280, 740), g.getFont(), 720);
+            drawCenteredString( g,
+                                highscore.toString(),
+                                new Rectangle(0, 0, Constants.XRESOLUTION, Constants.YRESOLUTION),
+                                g.getFont(),
+                                Constants.GAMEAREAWIDTH);
         }
 
         for (Ball s : gameBalls) {
