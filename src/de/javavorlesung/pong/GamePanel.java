@@ -14,8 +14,10 @@ public class GamePanel extends JPanel implements KeyListener, MouseMotionListene
 
     //Gameproperties
     private Integer highscore;
-    private int basespeed;
+    private double basespeed;
     private boolean gameOver = false;
+    private long time=System.currentTimeMillis();
+    private long delta;
 
     //Gameobjects
     private Paddle paddle;
@@ -123,20 +125,25 @@ public class GamePanel extends JPanel implements KeyListener, MouseMotionListene
         }
     }
 
+    private void determineTime(){
+        delta = System.currentTimeMillis()-time;
+        time = System.currentTimeMillis();
+    }
+
     private void doOnTick(){
+        determineTime();
         paddle.move();
         moveBalls();
         repaint();
     }
 
 
-
     private void moveBalls(){
         //move game balls
         for (Ball s : gameBalls) {
-            s.move();
+            s.move(delta);
             if(paddle.checkCollision(s.getShape())){
-                paddle.bounce(s);
+                paddle.bounce(s, delta);
                 calculateHighscore(s);
             }
 
@@ -146,7 +153,7 @@ public class GamePanel extends JPanel implements KeyListener, MouseMotionListene
             if (!(tempList.isEmpty())) {
                 for (Ball t : tempList) {
                     if (s.checkCollision(t.getShape())) {
-                        s.collide(t);
+                        s.collide(t, delta);
                     }
                 }
             }
@@ -164,7 +171,7 @@ public class GamePanel extends JPanel implements KeyListener, MouseMotionListene
         }
 
         for (Ball s : displayBalls) {
-            s.move();
+            s.move(delta);
         }
 
 

@@ -92,7 +92,7 @@ public class Paddle extends GameObject {
 
 
 
-    public void bounce(Ball ball){
+    public void bounce(Ball ball, long delta){
         double newBallAngle;
         //Drehung gegen den Uhrzeigersinn um Winkel zu normalisieren
         double paddleAngle = 0;
@@ -139,7 +139,7 @@ public class Paddle extends GameObject {
 
         //clearing ball from paddle
         while(checkCollision(ball.getShape())){
-            ball.move();
+            ball.move(delta);
         }
         //increasing speed
         ball.setMovingDistance(ball.getMovingDistance()+Constants.COLLISIONACCELERATION);

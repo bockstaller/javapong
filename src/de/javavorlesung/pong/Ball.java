@@ -26,26 +26,25 @@ public class Ball extends GameObject {
     }
 
 
-    public void move(){
+    public void move(long delta){
         double newX;
         double newY;
 
-        newX = Math.toDegrees(Math.cos(Math.toRadians(getMovingAngle())))*getMovingDistance()/Constants.SPEEDFACTOR;
+        newX = Math.toDegrees(Math.cos(Math.toRadians(getMovingAngle())))*(getMovingDistance()/(Constants.SPEEDFACTOR*delta));
         newX = newX + getObjectPosition().getX();
-        newY = - Math.toDegrees(Math.sin(Math.toRadians(getMovingAngle())))*getMovingDistance()/Constants.SPEEDFACTOR;
+        newY = - Math.toDegrees(Math.sin(Math.toRadians(getMovingAngle())))*(getMovingDistance()/(Constants.SPEEDFACTOR*delta));
         newY = newY + getObjectPosition().getY();
-
         setBallShape(new Coordinate( newX, newY));
     }
 
-    public void collide(Ball ball){
+    public void collide(Ball ball, long delta){
         double temp = ball.getMovingAngle();
         ball.setMovingAngle(getMovingAngle());
         setMovingAngle(temp);
         //clearing ball from ball
         while(checkCollision(ball.getShape())){
-            ball.move();
-            move();
+            ball.move(delta);
+            move(delta);
         }
     }
 
