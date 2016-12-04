@@ -243,7 +243,7 @@ public class GamePanel extends JPanel implements KeyListener, MouseMotionListene
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         gamearea.paintMe(g);
-        paddle.paintMe(g);
+
 
         if (getGameOver()) {
             g.setFont(  new Font(Font.MONOSPACED,
@@ -282,6 +282,7 @@ public class GamePanel extends JPanel implements KeyListener, MouseMotionListene
                     Constants.GAMEAREAWIDTH);
         }
 
+        paddle.paintMe(g);
         for (Ball s : gameBalls) {
             s.paintMe(g);
         }
@@ -296,6 +297,11 @@ public class GamePanel extends JPanel implements KeyListener, MouseMotionListene
     public void keyPressed(KeyEvent e) {
         if (gameOver) {
             restartGame(e);
+        }
+        if (t1.isRunning()){
+            pauseGame();
+        } else {
+            continueGame();
         }
     }
 
